@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<!-- https://learn.microsoft.com/en-us/aspnet/core/tutorials/web-api-javascript?view=aspnetcore-6.0 -->
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <title>Address Book</title>
+    <link rel="stylesheet" href="css/site.css" />
+  </head>
+  <body>
+    <h1>Address Book</h1>
+
+    <h2>My addresses</h2>
+    <p id="counter"></p>
+    <h3>Add a new address</h3>
+    <form action="javascript:void(0);" method="POST" onsubmit="addAddress()">
+      <input type="text" id="add-Street" placeholder="Street" />
+      <input type="text" id="add-City" placeholder="City" />
+      <input type="text" id="add-Postcode" placeholder="Postcode" />
+      <input type="submit" value="Add" />
+    </form>
+
+    <h3>Search addresses</h3>
+    <input
+      type="text"
+      id="searchInput"
+      placeholder="Search by Street, City, or Postcode"
+      oninput="filterAddresses()"
+    />
+
+    <table>
+      <tr>
+        <th>Street</th>
+        <th>City</th>
+        <th>Postcode</th>
+        <th></th>
+        <th></th>
+      </tr>
+      <tbody id="addresses"></tbody>
+    </table>
+
+    <div id="editForm">
+      <h3>Edit</h3>
+      <form action="javascript:void(0);" onsubmit="updateItem()">
+        <input type="hidden" id="edit-id" />
+        <input type="text" id="edit-Street" />
+        <input type="text" id="edit-City" />
+        <input type="text" id="edit-Postcode" />
+        <input type="submit" value="Save" />
+        <a onclick="closeInput()" aria-label="Close">&#10006;</a>
+      </form>
+    </div>
+
+    <script src="js/site.js" asp-append-version="true"></script>
+    <script type="text/javascript">
+      function addAddress() {
+        const addStreetTextbox = document.getElementById("add-Street");
+        const addCityTextbox = document.getElementById("add-City");
+        const addPostcodeTextbox = document.getElementById("add-Postcode");
+
+        const address = {
+          Street: addStreetTextbox.value.trim(),
+          City: addCityTextbox.value.trim(),
+          Postcode: parseInt(addPostcodeTextbox.value.trim(), 10),
+        };
+
+        fetch(uri, {
+          method: "POST",
+          headers: {
+            Accept: "application/json",
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(address),
+        })
+          .then((response) => {
+            if (!response.ok) {
+              throw new Error(
+                "Network response was not ok " + response.statusText
+              );
+            }
+            return response.json();
+          })
+          .then(() => {
+            getAddresses();
+            addStreetTextbox.value = "";
+            addCityTextbox.value = "";
+            addPostcodeTextbox.value = "";
+          })
+          .catch((error) => console.error("Unable to add address.", error));
+      }
+
+      getAddresses();
+    </script>
+  </body>
+</html>
